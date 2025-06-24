@@ -27,15 +27,19 @@ const AuthModal = ({ isOpen, onClose, onLogin }: AuthModalProps) => {
     if (isLoginMode) {
       // Simulate login
       if (formData.email && formData.password) {
+        // Use the name from form data, or extract from email if name is empty
+        const userName = formData.name || formData.email.split('@')[0];
         onLogin({
-          name: formData.name || "John Doe",
+          name: userName,
           email: formData.email,
         });
         toast({
           title: "Login Successful!",
-          description: "Welcome back to ShopEase!",
+          description: `Welcome back, ${userName}!`,
         });
         onClose();
+        // Reset form
+        setFormData({ name: "", email: "", password: "" });
       } else {
         toast({
           title: "Error",
@@ -52,9 +56,11 @@ const AuthModal = ({ isOpen, onClose, onLogin }: AuthModalProps) => {
         });
         toast({
           title: "Registration Successful!",
-          description: "Welcome to ShopEase!",
+          description: `Welcome to ShopEase, ${formData.name}!`,
         });
         onClose();
+        // Reset form
+        setFormData({ name: "", email: "", password: "" });
       } else {
         toast({
           title: "Error",
@@ -144,7 +150,10 @@ const AuthModal = ({ isOpen, onClose, onLogin }: AuthModalProps) => {
           <div className="mt-4 text-center">
             <button
               type="button"
-              onClick={() => setIsLoginMode(!isLoginMode)}
+              onClick={() => {
+                setIsLoginMode(!isLoginMode);
+                setFormData({ name: "", email: "", password: "" });
+              }}
               className="text-blue-600 hover:text-blue-700 text-sm"
             >
               {isLoginMode

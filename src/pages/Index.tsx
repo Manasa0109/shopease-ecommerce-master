@@ -82,7 +82,7 @@ const Index = () => {
   const [currentView, setCurrentView] = useState<"home" | "shop" | "cart">("home");
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("all");
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [user, setUser] = useState<{ name: string; email: string } | null>(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
@@ -127,14 +127,28 @@ const Index = () => {
     setUser(null);
   };
 
+  // Fixed filtering logic
   const filteredProducts = sampleProducts.filter(product => {
     const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         product.description.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesCategory = !selectedCategory || product.category === selectedCategory;
+                         product.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         product.category.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesCategory = selectedCategory === "all" || selectedCategory === "" || product.category === selectedCategory;
     return matchesSearch && matchesCategory;
   });
 
   const categories = [...new Set(sampleProducts.map(p => p.category))];
+
+  const handleShopNow = () => {
+    setCurrentView("shop");
+    setSearchQuery(""); // Clear search when navigating to shop
+    setSelectedCategory("all"); // Reset category filter
+  };
+
+  const handleViewAllProducts = () => {
+    setCurrentView("shop");
+    setSearchQuery(""); // Clear search when viewing all products
+    setSelectedCategory("all"); // Reset category filter
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -150,11 +164,11 @@ const Index = () => {
 
       {currentView === "home" && (
         <>
-          <Hero onShopNow={() => setCurrentView("shop")} />
+          <Hero onShopNow={handleShopNow} />
           <FeaturedProducts
             products={sampleProducts.slice(0, 3)}
             onAddToCart={addToCart}
-            onViewAll={() => setCurrentView("shop")}
+            onViewAll={handleViewAllProducts}
           />
         </>
       )}
