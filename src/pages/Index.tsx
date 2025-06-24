@@ -5,6 +5,7 @@ import Hero from "../components/Hero";
 import FeaturedProducts from "../components/FeaturedProducts";
 import ProductCatalog from "../components/ProductCatalog";
 import Cart from "../components/Cart";
+import AuthModal from "../components/AuthModal";
 import { Product, CartItem } from "../types";
 
 // Sample product data (in real app, this would come from API)
@@ -84,6 +85,7 @@ const Index = () => {
   const [selectedCategory, setSelectedCategory] = useState("");
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [user, setUser] = useState<{ name: string; email: string } | null>(null);
+  const [showAuthModal, setShowAuthModal] = useState(false);
 
   const addToCart = (product: Product) => {
     setCartItems(prev => {
@@ -115,6 +117,16 @@ const Index = () => {
     );
   };
 
+  const handleLogin = (userData: { name: string; email: string }) => {
+    setIsLoggedIn(true);
+    setUser(userData);
+  };
+
+  const handleLogout = () => {
+    setIsLoggedIn(false);
+    setUser(null);
+  };
+
   const filteredProducts = sampleProducts.filter(product => {
     const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          product.description.toLowerCase().includes(searchQuery.toLowerCase());
@@ -132,14 +144,8 @@ const Index = () => {
         cartItemsCount={cartItems.reduce((sum, item) => sum + item.quantity, 0)}
         isLoggedIn={isLoggedIn}
         user={user}
-        onLogin={() => {
-          setIsLoggedIn(true);
-          setUser({ name: "John Doe", email: "john@example.com" });
-        }}
-        onLogout={() => {
-          setIsLoggedIn(false);
-          setUser(null);
-        }}
+        onLogin={() => setShowAuthModal(true)}
+        onLogout={handleLogout}
       />
 
       {currentView === "home" && (
@@ -173,6 +179,12 @@ const Index = () => {
           onContinueShopping={() => setCurrentView("shop")}
         />
       )}
+
+      <AuthModal
+        isOpen={showAuthModal}
+        onClose={() => setShowAuthModal(false)}
+        onLogin={handleLogin}
+      />
     </div>
   );
 };
